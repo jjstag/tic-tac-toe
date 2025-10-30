@@ -25,6 +25,8 @@ const Gameboard = (function () {
                 console.log(rowValue)
                 if (Math.abs(rowValue) === 3) {
                     return true
+                } else if (!board.includes(0)) {
+                    return false
                 }
             }
             
@@ -32,6 +34,8 @@ const Gameboard = (function () {
         board[spot] = player
         if (checkForWin(board) === true) {
             console.log(`Player ${player} won!`)
+        } else if (checkForWin(board) === false) {
+            console.log(`It's a tie!`)
         }
         return board
     } 
@@ -44,4 +48,8 @@ console.log(Gameboard.place(1, 1))
 console.log(Gameboard.place(2, 4))
 console.log(Gameboard.place(1, 2))
 console.log(Gameboard.place(2, 5))
-console.log(Gameboard.place(1, 3))
+console.log(Gameboard.place(1, 6))
+console.log(Gameboard.place(2, 3))
+console.log(Gameboard.place(1, 7))
+console.log(Gameboard.place(2, 8))
+console.log(Gameboard.place(1, 9))
