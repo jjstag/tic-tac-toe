@@ -1,11 +1,20 @@
+const TTTBoard = document.querySelector("#ttt-board")
+let board = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+let hasWon
+
 const Gameboard = (function () {
-    const board = [0, 0, 0, 0, 0, 0, 0, 0, 0]
     const place = (player, spot) => {
         // player should be 1 or 2. spot should be 1-9
-        spot--
-        // make the spot begin at 0
         if (player == 2) {player = -1}
         // convert the board to a "1, 0, -1" format.
+        function checkValidPlacement(board, spot) {
+            if (board[spot] === 0) {
+                return true;
+            } else {
+                console.log(`board: ${board} spot: ${spot} board[spot]: ${board[spot]}`)
+                return false;
+            }
+        }
         function checkForWin(board) {
             const wins = [
                 [0, 1, 2],
@@ -22,7 +31,7 @@ const Gameboard = (function () {
                 for (let number of array) {
                     rowValue += board[number]
                 }
-                console.log(rowValue)
+                // console.log(rowValue)
                 if (Math.abs(rowValue) === 3) {
                     return true
                 } else if (!board.includes(0)) {
@@ -31,25 +40,88 @@ const Gameboard = (function () {
             }
             
         }
-        board[spot] = player
-        if (checkForWin(board) === true) {
+        if (checkValidPlacement(board, spot) === true) {
+            board[spot] = player
+        } else {
+            console.log("Invalid placement!")
+        }
+
+        hasWon = checkForWin(board)
+
+        if (hasWon === true) {
             console.log(`Player ${player} won!`)
-        } else if (checkForWin(board) === false) {
+        } else if (hasWon === false) {
             console.log(`It's a tie!`)
         }
-        return board
+        console.log(board)
+        // return {
+        //     checkValidPlacement,
+        //     checkForWin,
+        // }
     } 
     return {
         place,
+        hasWon
     }
 })()
 
-console.log(Gameboard.place(1, 1))
-console.log(Gameboard.place(2, 4))
-console.log(Gameboard.place(1, 2))
-console.log(Gameboard.place(2, 5))
-console.log(Gameboard.place(1, 6))
-console.log(Gameboard.place(2, 3))
-console.log(Gameboard.place(1, 7))
-console.log(Gameboard.place(2, 8))
-console.log(Gameboard.place(1, 9))
+const DOMController = (function () {
+    const displayBoard = (board) => {
+        TTTBoard.textContent = ""
+
+        let i = 0
+        for (spot of board) {
+            const tile = document.createElement("div")
+            tile.className = "tile"
+            tile.dataset.spot = i
+            i++
+            
+            let text
+            if (spot === 1) {
+                text = "X"
+            } else if (spot === -1) {
+                text = "O"
+            // additional but technically unnecessary check
+            } else {
+                text = ""
+            }
+            tile.textContent = text
+
+            TTTBoard.appendChild(tile)
+        }
+    }
+    return {
+        displayBoard,
+    }
+})()
+
+// controls everything such as updating the DOM when a move is played and containing the logic for when clickHandler notifies us of a click
+const gameController = (function () {
+    //TEMPORARY PLAYER FOR TESTING
+    const player = 1
+    TTTBoard.addEventListener("click", (e) => {
+        if (e.target.id || board[e.target.dataset.spot] !== 0) return;
+        if (hasWon) {board = [0, 0, 0, 0, 0, 0, 0, 0, 0]}
+        console.log(hasWon)
+        console.log((e.target.dataset.spot))
+        // do not update display in the event of a winning move
+        Gameboard.place(player, (e.target.dataset.spot))
+        DOMController.displayBoard(board)
+    })
+})()
+
+//take eventlistener out but define function inside gamecontroller
+
+// put the initalizing in gameController
+DOMController.displayBoard(board)
+
+// console.log(Gameboard.place(1, 1))
+// console.log(Gameboard.place(2, 4))
+// console.log(Gameboard.place(1, 2))
+// console.log(Gameboard.place(2, 5))
+// console.log(Gameboard.place(1, 6))
+// console.log(Gameboard.place(1, 6))
+// console.log(Gameboard.place(2, 3))
+// console.log(Gameboard.place(1, 7))
+// console.log(Gameboard.place(2, 8))
+// console.log(Gameboard.place(1, 9))
