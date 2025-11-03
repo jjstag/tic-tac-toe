@@ -52,7 +52,6 @@ const Gameboard = (function () {
 
         if (hasWon === true) {
             console.log(`Player ${player} won!`)
-            TTTBoard.removeEventListener("click", doTurn)
         } else if (hasWon === false) {
             console.log(`It's a tie!`)
         }
@@ -97,25 +96,23 @@ const DOMController = (function () {
         displayBoard,
     }
 })()
-function doTurn(e) {
-    if (e.target.id || board[e.target.dataset.spot] !== 0) return;
-    // console.log(hasWon)
-    // console.log((e.target.dataset.spot))
-    // do not update display in the event of a winning move
-    Gameboard.place(player, (e.target.dataset.spot))
-    DOMController.displayBoard(board)
-    if (player === 1) player = 2; else player = 1;
-}
 // controls everything such as updating the DOM when a move is played and containing the logic for when clickHandler notifies us of a click
 const gameController = (function () {
     restartBtn.addEventListener("click", () => {
         if (hasWon === true || hasWon === false) {
-            TTTBoard.addEventListener("click", doTurn)
             board = [0, 0, 0, 0, 0, 0, 0, 0, 0]
             DOMController.displayBoard(board)
-
+            hasWon = undefined
         }
     })
+
+    function doTurn(e) {
+        if (hasWon === true || hasWon === false) return;
+        if (e.target.id || board[e.target.dataset.spot] !== 0) return;
+        Gameboard.place(player, (e.target.dataset.spot))
+        DOMController.displayBoard(board)
+        if (player === 1) player = 2; else player = 1;
+    }
     TTTBoard.addEventListener("click", doTurn)
 })()
 
