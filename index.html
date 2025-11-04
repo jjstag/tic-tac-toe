@@ -9,8 +9,20 @@
 <body>
     <div class="container">
         <button id="restartBtn">Restart</button>
-        <div id="ttt-board"></div>
-        <p id="text-display">Player One's Turn</p>
+        <div id="ttt-board">
+
+            <form id="names-form">
+                <label>
+                    <input type="text" name="player-one-name" placeholder="Player One's Name">
+                </label>
+                <label>
+                    <input type="text" name="player-two-name" placeholder="Player Two's Name">
+                </label>
+                <button type="submit">Start Game</button>
+            </form>
+
+        </div>
+        <p id="text-display">|</p>
     </div>
     <script src="scripts.js"></script>
 </body>

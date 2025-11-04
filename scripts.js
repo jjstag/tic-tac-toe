@@ -1,13 +1,17 @@
+const namesForm = document.querySelector("#names-form")
 const TTTBoard = document.querySelector("#ttt-board")
 const restartBtn = document.querySelector("#restartBtn")
+const textDisplay = document.querySelector("#text-display")
 let board = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-let player = 1
+let currentPlayer = 1
 let hasWon
+let playerOneName
+let playerTwoName
 
 const Gameboard = (function () {
     const place = (player, spot) => {
         // player should be 1 or 2. spot should be 1-9
-        if (player == 2) {player = -1}
+        // if (player == 2) {player = -1}
         // convert the board to a "1, 0, -1" format.
         function checkValidPlacement(board, spot) {
             if (board[spot] === 0) {
@@ -29,18 +33,11 @@ const Gameboard = (function () {
                 [2, 4, 6],
             ]
             for (let array of wins) {
-                let rowValue = 0
-                for (let number of array) {
-                    rowValue += board[number]
-                }
-                // console.log(rowValue)
-                if (Math.abs(rowValue) === 3) {
-                    return true
-                } else if (!board.includes(0)) {
-                    return false
-                }
+                let rowValue = array.reduce((sum, index) => sum + board[index], 0);
+                if (Math.abs(rowValue) === 3) return true;
             }
-            
+            if (!board.includes(0)) return false;
+            return undefined;
         }
         if (checkValidPlacement(board, spot) === true) {
             board[spot] = player
@@ -51,9 +48,21 @@ const Gameboard = (function () {
         hasWon = checkForWin(board)
 
         if (hasWon === true) {
-            console.log(`Player ${player} won!`)
+            if (player === -1) {
+                console.log(`Player Two won!`)
+                textDisplay.textContent = (`Player ${playerTwoName} won!`)
+            } else if (player === 1) {
+                console.log(`Player One won!`)
+                textDisplay.textContent = (`Player ${playerOneName} won!`)
+            } else {
+                console.log("undefined won")
+            }
         } else if (hasWon === false) {
             console.log(`It's a tie!`)
+            textDisplay.textContent = (`It's a tie!`)
+        } else {
+            DOMController.setTurnText()
+            gameController.switchTurn()
         }
         console.log(board)
         // return {
@@ -63,7 +72,6 @@ const Gameboard = (function () {
     } 
     return {
         place,
-        hasWon
     }
 })()
 
@@ -92,8 +100,24 @@ const DOMController = (function () {
             TTTBoard.appendChild(tile)
         }
     }
+    const setTurnText = () => {
+        // console.log(`not ran yet. player: ${player}, currentplayer: ${currentPlayer}`)
+        if (currentPlayer === 1) {
+                // player = -1;
+                textDisplay.textContent = `Player ${playerTwoName}'s turn`;
+                console.log(`player two's turn`)
+            } else if (currentPlayer === -1) {
+                // player = 1;
+                textDisplay.textContent = `Player ${playerOneName}'s turn`;
+                console.log(`player one's turn`)
+            } else {
+                console.log("idk")
+            }
+            // console.log(`ran! player: ${player}, currentplayer: ${currentPlayer}`)
+    }
     return {
         displayBoard,
+        setTurnText,
     }
 })()
 // controls everything such as updating the DOM when a move is played and containing the logic for when clickHandler notifies us of a click
@@ -101,33 +125,43 @@ const gameController = (function () {
     restartBtn.addEventListener("click", () => {
         if (hasWon === true || hasWon === false) {
             board = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-            DOMController.displayBoard(board)
             hasWon = undefined
+            currentPlayer = 1
+            textDisplay.textContent = "Player One's turn"
+
+            DOMController.displayBoard(board)
         }
     })
 
     function doTurn(e) {
         if (hasWon === true || hasWon === false) return;
         if (e.target.id || board[e.target.dataset.spot] !== 0) return;
-        Gameboard.place(player, (e.target.dataset.spot))
+        Gameboard.place(currentPlayer, (e.target.dataset.spot))
         DOMController.displayBoard(board)
-        if (player === 1) player = 2; else player = 1;
+        console.log("turn done")
     }
-    TTTBoard.addEventListener("click", doTurn)
+    namesForm.addEventListener("submit", (e) => {
+            e.preventDefault()
+            playerOneName = e.target["player-one-name"].value
+            playerTwoName = e.target["player-two-name"].value
+            TTTBoard.addEventListener("click", doTurn)
+            textDisplay.textContent = `Player ${playerOneName}'s turn`
+            DOMController.displayBoard(board)
+    })
+
+    const switchTurn = () => {
+        if (currentPlayer === 1) {
+            currentPlayer = -1
+        } else if (currentPlayer === -1) {
+            currentPlayer = 1
+        } else {
+            console.log(`player ${player} is neither 1 nor -1.`)
+        }
+    }
+    return {
+        switchTurn,
+    }
 })()
 
-//take eventlistener out but define function inside gamecontroller
 
-// put the initalizing in gameController
-DOMController.displayBoard(board)
-
-// console.log(Gameboard.place(1, 1))
-// console.log(Gameboard.place(2, 4))
-// console.log(Gameboard.place(1, 2))
-// console.log(Gameboard.place(2, 5))
-// console.log(Gameboard.place(1, 6))
-// console.log(Gameboard.place(1, 6))
-// console.log(Gameboard.place(2, 3))
-// console.log(Gameboard.place(1, 7))
-// console.log(Gameboard.place(2, 8))
-// console.log(Gameboard.place(1, 9))
+// different players do different things?
